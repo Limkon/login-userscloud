@@ -1,8 +1,8 @@
 const fs = require('fs');
 const puppeteer = require('puppeteer');
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 (async () => {
-  // 读取 accounts.json 文件中的 JSON 字符串
   const accountsJson = fs.readFileSync('accounts.json', 'utf-8');
   const accounts = JSON.parse(accountsJson);
 
@@ -10,51 +10,48 @@ const puppeteer = require('puppeteer');
     const { username, password } = account;
 
     try {
-      // 修改网址为新的登录页面
       const browser = await puppeteer.launch({ headless: false });
       const page = await browser.newPage();
       await page.goto('https://userscloud.com/login.html');
 
-      // 输入实际的账号和密码
+      // Wait for the page to fully load
+      await page.waitForLoad();
+
+      // Type in the username and password
       await page.type('input[name="username"]', username);
       await page.type('input[name="password"]', password);
 
-      // 提交登录表单
+      // Wait for 1 second to simulate human-like typing
+      await delay(1000);
+
+      // Click the login button
       await page.click('button[type="submit"]');
-      await page.waitForTimeout(1000); // 等待1秒
 
-      // 等待登录成功（如果有跳转页面的话）
+      // Wait for the page to navigate to the home page
       await page.waitForNavigation();
-      await page.waitForTimeout(10000); // 等待10秒
 
-      // 判断是否登录成功
+      // Check if the login was successful
       const isLoggedIn = await page.evaluate(() => {
         const logoutButton = document.querySelector('#logout');
         return logoutButton !== null;
       });
 
       if (isLoggedIn) {
-        console.log(`账号 ${username} 登录成功！`);
+        console.log(`Account ${username} logged in successfully!`);
       } else {
-        console.error(`账号 ${username} 登录失败，请检查账号和密码是否正确。`);
+        console.error(`Account ${username} login failed, please check your credentials.`);
       }
     } catch (error) {
-      console.error(`账号 ${username} 登录时出现错误: ${error}`);
+      console.error(`Error logging in account ${username}: ${error}`);
     } finally {
-      // 关闭页面和浏览器
-      await page.close();
-      await browser.close();
+      // Random delay between login attempts to avoid triggering anti-bot mechanisms
+      const randomDelay = Math.floor(Math.random() * 5000) + 1000;
+      await delay(randomDelay);
 
-      // 用户之间添加随机延时
-      const delay = Math.floor(Math.random() * 10000) + 5000; // 随机延时5秒到15秒之间
-      await delayTime(delay);
+      // Close the browser
+      await browser.close();
     }
   }
 
-  console.log('所有账号登录完成！');
+  console.log('All accounts logged in.');
 })();
-
-// 自定义延时函数
-function delayTime(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
