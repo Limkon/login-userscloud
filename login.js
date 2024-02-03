@@ -18,8 +18,10 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
         await page.type('input[name="login"]', username);
         await page.type('input[name="password"]', password);
         await page.click('button[type="submit"]');
+        
+        // Add a short delay to ensure the page navigation
         await page.waitForNavigation();
-
+        
         const isLoggedIn = await page.evaluate(() => {
           const logoutButton = document.querySelector('#logout');
           return logoutButton !== null;
