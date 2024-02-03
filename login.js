@@ -21,9 +21,11 @@ const puppeteer = require('puppeteer');
 
       // 提交登录表单
       await page.click('button[type="submit"]');
+      await page.waitForTimeout(1000); // 等待1秒
 
       // 等待登录成功（如果有跳转页面的话）
       await page.waitForNavigation();
+      await page.waitForTimeout(10000); // 等待10秒
 
       // 判断是否登录成功
       const isLoggedIn = await page.evaluate(() => {
@@ -44,7 +46,7 @@ const puppeteer = require('puppeteer');
       await browser.close();
 
       // 用户之间添加随机延时
-      const delay = Math.floor(Math.random() * 5000) + 1000; // 随机延时1秒到6秒之间
+      const delay = Math.floor(Math.random() * 10000) + 5000; // 随机延时5秒到15秒之间
       await delayTime(delay);
     }
   }
