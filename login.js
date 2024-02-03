@@ -15,7 +15,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
       await page.goto('https://userscloud.com/login.html');
 
       // Wait for the page to fully load
-      await page.waitForLoad();
+      await page.waitForNavigation();
 
       // Type in the username and password
       await page.type('input[name="username"]', username);
