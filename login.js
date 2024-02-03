@@ -9,38 +9,25 @@ const puppeteer = require('puppeteer');
   for (const account of accounts) {
     const { username, password } = account;
 
-    const browser = await puppeteer.launch({ headless: false });
-    const page = await browser.newPage();
-
     try {
       // 修改网址为新的登录页面
-      await page.goto('https://panel0.serv00.com/login/?next=/');
-
-      // 清空用户名输入框的原有值
-      const usernameInput = await page.$('#id_username');
-      if (usernameInput) {
-        await usernameInput.click({ clickCount: 3 }); // 选中输入框的内容
-        await usernameInput.press('Backspace'); // 删除原有值
-      }
+      const browser = await puppeteer.launch({ headless: false });
+      const page = await browser.newPage();
+      await page.goto('https://userscloud.com/login.html');
 
       // 输入实际的账号和密码
-      await page.type('#id_username', username);
-      await page.type('#id_password', password);
+      await page.type('input[name="username"]', username);
+      await page.type('input[name="password"]', password);
 
       // 提交登录表单
-      const loginButton = await page.$('#submit');
-      if (loginButton) {
-        await loginButton.click();
-      } else {
-        throw new Error('无法找到登录按钮');
-      }
+      await page.click('button[type="submit"]');
 
       // 等待登录成功（如果有跳转页面的话）
       await page.waitForNavigation();
 
       // 判断是否登录成功
       const isLoggedIn = await page.evaluate(() => {
-        const logoutButton = document.querySelector('a[href="/logout/"]');
+        const logoutButton = document.querySelector('#logout');
         return logoutButton !== null;
       });
 
